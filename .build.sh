@@ -29,8 +29,7 @@ RUN="docker run --rm=true --user=${USER} -w ${PWD} -v ${HOME}:${HOME} -t ${CONTA
 
 ${RUN} ./bootstrap.sh
 
-# Out-of-tree build
-# TODO: clean up when the build fails
+# Out-of-tree build, ARM
 SRCDIR=$PWD
 TEMPDIR=`mktemp -d ${HOME}/pdbgobjXXXXXX`
 RUN_TMP="docker run --rm=true --user=${USER} -w ${TEMPDIR} -v ${HOME}:${HOME} -t ${CONTAINER}"
@@ -38,6 +37,32 @@ ${RUN_TMP} ${SRCDIR}/configure --host=arm-linux-gnueabi
 ${RUN_TMP} make
 rm -rf ${TEMPDIR}
 
-# In-tree build
+# In-tree build, ARM
 ${RUN} ./configure --host=arm-linux-gnueabi
 ${RUN} make
+${RUN} make distclean
+
+# Out-of-tree build, ppc64le
+SRCDIR=$PWD
+TEMPDIR=`mktemp -d ${HOME}/pdbgobjXXXXXX`
+RUN_TMP="docker run --rm=true --user=${USER} -w ${TEMPDIR} -v ${HOME}:${HOME} -t ${CONTAINER}"
+${RUN_TMP} ${SRCDIR}/configure --host=powerpc64le-linux-gnu
+${RUN_TMP} make
+rm -rf ${TEMPDIR}
+
+# In-tree build, ppc64le
+${RUN} ./configure --host=powerpc64le-linux-gnu
+${RUN} make
+${RUN} make distclean
+
+# Out-of-tree build, native
+SRCDIR=$PWD
+TEMPDIR=`mktemp -d ${HOME}/pdbgobjXXXXXX`
+INSTALLTEMPDIR=`mktemp -d ${HOME}/pdbginstallXXXXXX`
+RUN_TMP="docker run --rm=true --user=${USER} -w ${TEMPDIR} -v ${HOME}:${HOME} -t ${CONTAINER}"
+${RUN_TMP} ${SRCDIR}/configure --prefix=${INSTALLTEMPDIR}
+${RUN_TMP} make
+${RUN_TMP} make install
+echo "LD_LIBRARY_PATH=${INSTALLTEMPDIR}/lib ${INSTALLTEMPDIR}/bin/pdbg -b fake probe -a" > run.sh
+${RUN_TMP} bash ${SRCDIR}/run.sh
+rm -rf ${TEMPDIR} ${INSTALLTEMPDIR}
