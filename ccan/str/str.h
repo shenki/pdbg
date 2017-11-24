@@ -94,13 +94,121 @@ size_t strcount(const char *haystack, const char *needle);
 #if HAVE_TYPEOF
 /* Only a simple type can have 0 assigned, so test that. */
 #define STR_MAX_CHARS_TCHECK_(type_or_expr)		\
-	({ typeof(type_or_expr) x = 0; (void)x; 0; })
+	(sizeof(({ typeof(type_or_expr) x = 0; x; }))*0)
 #else
 #define STR_MAX_CHARS_TCHECK_(type_or_expr) 0
 #endif
 
+/**
+ * cisalnum - isalnum() which takes a char (and doesn't accept EOF)
+ * @c: a character
+ *
+ * Surprisingly, the standard ctype.h isalnum() takes an int, which
+ * must have the value of EOF (-1) or an unsigned char.  This variant
+ * takes a real char, and doesn't accept EOF.
+ */
+static inline bool cisalnum(char c)
+{
+	return isalnum((unsigned char)c);
+}
+static inline bool cisalpha(char c)
+{
+	return isalpha((unsigned char)c);
+}
+static inline bool cisascii(char c)
+{
+	return isascii((unsigned char)c);
+}
+#if HAVE_ISBLANK
+static inline bool cisblank(char c)
+{
+	return isblank((unsigned char)c);
+}
+#endif
+static inline bool ciscntrl(char c)
+{
+	return iscntrl((unsigned char)c);
+}
+static inline bool cisdigit(char c)
+{
+	return isdigit((unsigned char)c);
+}
+static inline bool cisgraph(char c)
+{
+	return isgraph((unsigned char)c);
+}
+static inline bool cislower(char c)
+{
+	return islower((unsigned char)c);
+}
+static inline bool cisprint(char c)
+{
+	return isprint((unsigned char)c);
+}
+static inline bool cispunct(char c)
+{
+	return ispunct((unsigned char)c);
+}
+static inline bool cisspace(char c)
+{
+	return isspace((unsigned char)c);
+}
+static inline bool cisupper(char c)
+{
+	return isupper((unsigned char)c);
+}
+static inline bool cisxdigit(char c)
+{
+	return isxdigit((unsigned char)c);
+}
+
+#include <ccan/str/str_debug.h>
+
 /* These checks force things out of line, hence they are under DEBUG. */
 #ifdef CCAN_STR_DEBUG
+#include <ccan/build_assert/build_assert.h>
+
+/* These are commonly misused: they take -1 or an *unsigned* char value. */
+#undef isalnum
+#undef isalpha
+#undef isascii
+#undef isblank
+#undef iscntrl
+#undef isdigit
+#undef isgraph
+#undef islower
+#undef isprint
+#undef ispunct
+#undef isspace
+#undef isupper
+#undef isxdigit
+
+/* You can use a char if char is unsigned. */
+#if HAVE_BUILTIN_TYPES_COMPATIBLE_P && HAVE_TYPEOF
+#define str_check_arg_(i)						\
+	((i) + BUILD_ASSERT_OR_ZERO(!__builtin_types_compatible_p(typeof(i), \
+								  char)	\
+				    || (char)255 > 0))
+#else
+#define str_check_arg_(i) (i)
+#endif
+
+#define isalnum(i) str_isalnum(str_check_arg_(i))
+#define isalpha(i) str_isalpha(str_check_arg_(i))
+#define isascii(i) str_isascii(str_check_arg_(i))
+#if HAVE_ISBLANK
+#define isblank(i) str_isblank(str_check_arg_(i))
+#endif
+#define iscntrl(i) str_iscntrl(str_check_arg_(i))
+#define isdigit(i) str_isdigit(str_check_arg_(i))
+#define isgraph(i) str_isgraph(str_check_arg_(i))
+#define islower(i) str_islower(str_check_arg_(i))
+#define isprint(i) str_isprint(str_check_arg_(i))
+#define ispunct(i) str_ispunct(str_check_arg_(i))
+#define isspace(i) str_isspace(str_check_arg_(i))
+#define isupper(i) str_isupper(str_check_arg_(i))
+#define isxdigit(i) str_isxdigit(str_check_arg_(i))
+
 #if HAVE_TYPEOF
 /* With GNU magic, we can make const-respecting standard string functions. */
 #undef strstr

@@ -5,9 +5,7 @@ int main(int argc, char *argv[])
 {
 	int x = 0, y = 0;
 
-	(void)argc;
 	(void)argv;
-
 	plan_tests(9);
 
 	ok1(check_type(argc, int) == 0);
