@@ -48,7 +48,7 @@ static int print_core_thread_status(struct pdbg_target *core_target, uint32_t in
 		if (status[i] & ~(THREAD_STATUS_ACTIVE|THREAD_STATUS_DOZE|
 				  THREAD_STATUS_NAP|THREAD_STATUS_SLEEP|
 				  THREAD_STATUS_STOP|THREAD_STATUS_QUIESCE)) {
-			printf("%llx ", status[i]);
+			printf("%016"PRIx64" ", status[i]);
 			continue;
 		}
 
