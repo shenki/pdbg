@@ -49,6 +49,10 @@ struct pdbg_target {
 	bool probed;
 	struct list_node class_link;
 	void *priv;
+
+	/* Cache for most common targets */
+	struct pib *pib;
+	u64 pib_addr;
 };
 
 struct pdbg_target *require_target_parent(struct pdbg_target *target);
@@ -111,6 +115,10 @@ struct pib {
 	int (*read)(struct pib *, uint64_t, uint64_t *);
 	int (*write)(struct pib *, uint64_t, uint64_t);
 	void *priv;
+
+	/* Cache for most common targets */
+	struct pib *pib;
+	u64 pib_addr;
 };
 #define target_to_pib(x) container_of(x, struct pib, target)
 
