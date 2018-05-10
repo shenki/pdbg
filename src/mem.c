@@ -37,7 +37,7 @@ static int getmem(uint64_t addr, uint64_t size)
 		if (pdbg_target_probe(target) != PDBG_TARGET_ENABLED)
 			continue;
 
-		if (!adu_getmem(target, addr, buf, size)) {
+		if (!adu_getmem_progress(target, addr, buf, size)) {
 			if (write(STDOUT_FILENO, buf, size) < 0)
 				PR_ERROR("Unable to write stdout.\n");
 			else
