@@ -20,6 +20,7 @@
 
 #include "operations.h"
 #include "bitutils.h"
+#include "progress.h"
 
 /* P8 ADU SCOM Register Definitions */
 #define P8_ALTD_CONTROL_REG	0x0
@@ -79,7 +80,8 @@
 #define FBC_ALTD_DATA_DONE	PPC_BIT(3)
 #define FBC_ALTD_PBINIT_MISSING PPC_BIT(18)
 
-int adu_getmem(struct pdbg_target *adu_target, uint64_t start_addr, uint8_t *output, uint64_t size)
+static int __adu_getmem(struct pdbg_target *adu_target, uint64_t start_addr,
+		uint8_t *output, uint64_t size, bool progress_bar)
 {
 	struct adu *adu;
 	int rc = 0;
@@ -87,6 +89,9 @@ int adu_getmem(struct pdbg_target *adu_target, uint64_t start_addr, uint8_t *out
 
 	assert(!strcmp(adu_target->class, "adu"));
 	adu = target_to_adu(adu_target);
+
+	if (progress_bar)
+		progress_init(size);
 
 	/* We read data in 8-byte aligned chunks */
 	for (addr = 8*(start_addr / 8); addr < start_addr + size; addr += 8) {
@@ -107,9 +112,28 @@ int adu_getmem(struct pdbg_target *adu_target, uint64_t start_addr, uint8_t *out
 			memcpy(output, &data, 8);
 			output += 8;
 		}
+		if (progress_bar)
+			progress_tick(addr - start_addr);
+	}
+	if (progress_bar) {
+		progress_tick(size);
+		progress_end();
 	}
 
 	return rc;
+}
+
+
+int adu_getmem_progress(struct pdbg_target *adu_target, uint64_t start_addr,
+			uint8_t *output, uint64_t size)
+{
+	return __adu_getmem(adu_target, start_addr, output, size, true);
+}
+
+int adu_getmem(struct pdbg_target *adu_target, uint64_t start_addr,
+	       uint8_t *output, uint64_t size)
+{
+	return __adu_getmem(adu_target, start_addr, output, size, false);
 }
 
 int adu_putmem(struct pdbg_target *adu_target, uint64_t start_addr, uint8_t *input, uint64_t size)

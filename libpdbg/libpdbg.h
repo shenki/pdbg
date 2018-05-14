@@ -121,6 +121,7 @@ int htm_reset(struct pdbg_target *target, uint64_t *base, uint64_t *size);
 int htm_dump(struct pdbg_target *target, uint64_t size, const char *filename);
 
 int adu_getmem(struct pdbg_target *target, uint64_t addr, uint8_t *ouput, uint64_t size);
+int adu_getmem_progress(struct pdbg_target *target, uint64_t addr, uint8_t *ouput, uint64_t size);
 int adu_putmem(struct pdbg_target *target, uint64_t addr, uint8_t *input, uint64_t size);
 
 int opb_read(struct pdbg_target *target, uint32_t addr, uint32_t *data);
