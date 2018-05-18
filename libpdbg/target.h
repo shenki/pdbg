@@ -119,6 +119,8 @@ struct pib {
 	/* Cache for most common targets */
 	struct pib *pib;
 	u64 pib_addr;
+
+	int fd; /* For kernel backend */
 };
 #define target_to_pib(x) container_of(x, struct pib, target)
 
