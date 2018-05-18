@@ -27,7 +27,7 @@
 #include "progress.h"
 
 #define PUTMEM_BUF_SIZE 1024
-static int getmem(uint64_t addr, uint64_t size, int ci)
+static int getmem(uint64_t addr, uint64_t size, bool ci)
 {
 	struct pdbg_target *target;
 	uint8_t *buf;
@@ -55,7 +55,7 @@ static int getmem(uint64_t addr, uint64_t size, int ci)
 	return rc;
 
 }
-static int putmem(uint64_t addr, int ci)
+static int putmem(uint64_t addr, bool ci)
 {
 	uint8_t *buf;
 	int read_size, rc = 0;
@@ -142,7 +142,7 @@ int handle_mem(int optind, int argc, char *argv[])
 {
 	uint64_t addr;
 	char *endptr;
-	int ci = 0;
+	bool ci = false;
 
 	if (optind + 1 >= argc) {
 		printf("%s: command '%s' requires an address\n", argv[0], argv[optind]);
@@ -153,7 +153,7 @@ int handle_mem(int optind, int argc, char *argv[])
 
 	if (strcmp(argv[optind +1], "-ci") == 0) {
 		/* Set cache-inhibited flag */
-		ci = 1;
+		ci = true;
 	}
 
 	addr = strtoull(argv[optind + 1 + ci], &endptr, 0);
